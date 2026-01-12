@@ -18,12 +18,26 @@ os.makedirs(IMG_DIR, exist_ok=True)
 logger.add("yes24/logs/eda_v3.log")
 
 def load_and_preprocess():
+    """
+    CSV 파일에서 데이터를 로드하고 분석에 필요한 전처리를 수행하는 함수.
+
+    주요 수행 작업:
+    1. CSV 파일 로드
+    2. 'Price', 'Review Count' 컬럼의 통화 기호 및 쉼표 제거 후 숫자형 변환
+    3. 'Rating' 컬럼 숫자형 변환
+    4. 'Publish Date' 컬럼에서 연도(Year)와 월(Month) 정보 추출 및 파생 변수 생성
+
+    Returns:
+        pd.DataFrame: 전처리가 완료된 pandas DataFrame. 
+                      로드 또는 전처리 실패 시 None 반환.
+    """
     logger.info("데이터 로드 및 전처리 시작...")
     try:
         df = pd.read_csv(DATA_PATH)
         
         # 1. 숫자형 변환 (Price, Review Count, Rating)
         def clean_currency(x):
+            """문자열에서 숫자와 소수점만 추출하여 float로 변환"""
             if isinstance(x, str):
                 return float(re.sub(r'[^\d.]', '', x))
             return float(x)
@@ -35,6 +49,7 @@ def load_and_preprocess():
         # 2. 날짜 파싱 (Publish Date)
         # 예: "2025년 11월" -> Year: 2025, Month: 11
         def parse_date(x):
+            """'YYYY년 MM월' 형식의 문자열에서 연도와 월을 추출"""
             match = re.search(r'(\d{4})년\s*(\d{1,2})월', str(x))
             if match:
                 return int(match.group(1)), int(match.group(2))
@@ -42,7 +57,7 @@ def load_and_preprocess():
 
         df['Year'], df['Month'] = zip(*df['Publish Date'].apply(parse_date))
         
-        # 날짜 정렬용 컬럼
+        # 날짜 정렬용 컬럼 (NaN 값을 0으로 채우고 정수형 변환)
         df['Year'] = df['Year'].fillna(0).astype(int)
         df['Month'] = df['Month'].fillna(0).astype(int)
         
@@ -53,6 +68,16 @@ def load_and_preprocess():
         return None
 
 def save_plot(filename):
+    """
+    현재 matplotlib figure를 이미지 파일로 저장하는 유틸리티 함수.
+
+    Args:
+        filename (str): 저장할 이미지 파일명 (확장자 포함).
+
+    Returns:
+        str: 저장된 이미지의 상대 경로 (Markdown 보고서 삽입용).
+             경로 구분자는 '/'로 통일됨.
+    """
     path = os.path.join(IMG_DIR, filename)
     plt.tight_layout()
     plt.savefig(path, dpi=300)
@@ -60,6 +85,23 @@ def save_plot(filename):
     return path.replace("\\", "/")
 
 def analyze_and_visualize(df):
+    """
+    전처리된 데이터를 바탕으로 다양한 탐색적 데이터 분석(EDA) 시각화를 수행하고 이미지를 저장하는 함수.
+
+    수행하는 시각화:
+    1. 수치형 데이터 분포 (가격, 평점, 리뷰 수) 히스토그램
+    2. 상위 20개 출판사 바 차트
+    3. 연도별/월별 도서 발행 트렌드 (라인/바 차트)
+    4. 주요 변수 간 상관관계 히트맵
+    5. 도서 제목 워드 클라우드
+
+    Args:
+        df (pd.DataFrame): 분석할 데이터프레임.
+
+    Returns:
+        dict: 생성된 이미지의 경로를 담은 딕셔너리. 
+              Key는 시각화 유형(예: 'numeric_dist'), Value는 이미지 경로.
+    """
     image_paths = {}
     
     # --- 1. 수치형 데이터 분포 (히스토그램) ---
@@ -131,6 +173,22 @@ def analyze_and_visualize(df):
     return image_paths
 
 def generate_pivot_tables(df):
+    """
+    데이터프레임을 사용하여 다양한 관점의 피봇 테이블 및 교차표를 생성하는 함수.
+
+    생성하는 테이블:
+    1. 상위 10개 출판사별 평균 가격 및 리뷰 수
+    2. 연도별 평균 평점 및 도서 발행 수
+    3. 가격대별(1만원 단위) 평점 및 리뷰 분석
+    4. 평점 구간별 평균 가격 및 리뷰 수
+    5. 다작 저자(5권 이상)의 평균 평점 Top 10
+
+    Args:
+        df (pd.DataFrame): 분석할 데이터프레임.
+
+    Returns:
+        list: (테이블 제목, DataFrame) 튜플의 리스트.
+    """
     pivots = []
     
     # 1. 출판사별 평균 가격 (상위 10개 출판사)
@@ -163,6 +221,14 @@ def generate_pivot_tables(df):
     return pivots
 
 def write_report(df, image_paths, pivots):
+    """
+    분석 결과와 시각화 이미지를 종합하여 마크다운(Markdown) 보고서를 파일로 작성하는 함수.
+
+    Args:
+        df (pd.DataFrame): 전처리된 데이터프레임 (기술통계 생성용).
+        image_paths (dict): 시각화 이미지 경로 딕셔너리.
+        pivots (list): 피봇 테이블 리스트.
+    """
     logger.info("보고서 작성 중...")
     
     with open(REPORT_PATH, "w", encoding="utf-8") as f:
@@ -232,6 +298,10 @@ def write_report(df, image_paths, pivots):
     logger.info(f"보고서 생성 완료: {REPORT_PATH}")
 
 def main():
+    """
+    메인 실행 함수.
+    데이터 로드 -> 분석 및 시각화 -> 피봇 테이블 생성 -> 보고서 작성 순으로 프로세스를 제어함.
+    """
     df = load_and_preprocess()
     if df is not None:
         image_paths = analyze_and_visualize(df)
