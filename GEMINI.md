@@ -35,19 +35,13 @@ uv pip install requests beautifulsoup4 selenium pandas numpy matplotlib seaborn 
 
 ```
 
-
-
 ## Special Configurations
-
-
 
 ### Logging (Loguru)
 
-표준 `logging` 모듈 대신 직관적이고 강력한 `loguru` 라이브러리를 사용합니다. 
+표준 `logging` 모듈 대신 직관적이고 강력한 `loguru` 라이브러리를 사용합니다.
 
 별도의 복잡한 설정 없이 즉시 파일 로깅 및 포맷팅된 출력이 가능합니다.
-
-
 
 ```python
 
@@ -67,11 +61,9 @@ logger.error("에러 발생 시 기록됩니다.")
 
 ```
 
-
-
 ### Visualization (Korean Font)
 
-Matplotlib 시각화 시 한글 깨짐 방지를 위해 `koreanize-matplotlib` 라이브러리를 사용합니다. 
+Matplotlib 시각화 시 한글 깨짐 방지를 위해 `koreanize-matplotlib` 라이브러리를 사용합니다.
 
 별도의 복잡한 설정 없이 임포트만으로 모든 그래프에서 한글이 정상 출력됩니다.
 
@@ -98,13 +90,15 @@ plt.show()
 6. **로깅**: 모든 프로젝트 스크립트에는 `loguru`를 사용하여 주요 진행 상황과 오류를 기록합니다.
 
 ---
-## 데이터 수집에 꼭 필요한 핵심 정보로 꼭 문서에 포함 할 것
-### 네트워크 메뉴를 통해 실제 데이터를 가져오는 URL
-### 해당 Request에 대한 Header 정보
-  - HTTP요청 정보, 그리고 Host 정보부터 User-Agent까지 넣어줍니다.
-### Payload
-  - POST 일때만 넣어주어도 되지만 잘 모르겠다면 모두 넣어주어도 됩니다.
-### 응답 예시 (HTML, JSON 의 일부 정보)
 
+## 데이터 수집에 꼭 필요한 핵심 정보로 꼭 문서에 포함 할 것
+
+### 네트워크 메뉴를 통해 실제 데이터를 가져오는 URL
+
+### 해당 Request에 대한 Header 정보
+
+### Payload
+
+### 응답 예시 (HTML, JSON 의 일부 정보)
 
 _이 파일은 프로젝트의 마스터 가이드라인입니다. 새로운 기능을 추가하거나 라이브러리를 설치할 때 이 문서를 참조하고 업데이트하십시오._
