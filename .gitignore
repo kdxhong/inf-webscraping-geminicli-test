@@ -81,3 +81,19 @@ logs/
 # Environment Variables
 .env
 .env.local
+kyobobook/eda_images/correlation_heatmap.png
+kyobobook/eda_images/dist_price.png
+kyobobook/eda_images/dist_pub_date.png
+kyobobook/eda_images/dist_rank.png
+kyobobook/eda_images/dist_review_count.png
+kyobobook/eda_images/dist_review_score.png
+kyobobook/eda_images/dist_sale_price.png
+kyobobook/eda_images/missing_values.png
+kyobobook/eda_images/outlier_price.png
+kyobobook/eda_images/outlier_pub_date.png
+kyobobook/eda_images/outlier_rank.png
+kyobobook/eda_images/outlier_review_count.png
+kyobobook/eda_images/outlier_review_score.png
+kyobobook/eda_images/outlier_sale_price.png
+kyobobook/eda_images/relation_crawled_at_rank.png
+kyobobook/slides.pptx
