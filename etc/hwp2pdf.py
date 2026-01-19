@@ -50,30 +50,43 @@ def main():
     root = tk.Tk()
     root.withdraw()
     
-    # 커맨드라인 인자 확인 (우클릭 메뉴 등에서 파일 경로가 넘어올 경우)
+    file_paths = []
+    
+    # 커맨드라인 인자 확인 (우클릭 메뉴 등에서 여러 파일 경로가 넘어올 경우)
     if len(sys.argv) > 1:
-        file_path = sys.argv[1]
-        logger.info(f"인자로 받은 파일 경로: {file_path}")
+        file_paths = sys.argv[1:]
+        logger.info(f"인자로 받은 파일 개수: {len(file_paths)}")
     else:
-        # 인자가 없으면 파일 선택창 띄우기
-        file_path = filedialog.askopenfilename(
-            title="PDF로 변환할 HWP 파일을 선택하세요",
+        # 인자가 없으면 다중 파일 선택창 띄우기
+        selected_files = filedialog.askopenfilenames(
+            title="PDF로 변환할 HWP 파일들을 선택하세요",
             filetypes=[("HWP 파일", "*.hwp *.hwpx"), ("모든 파일", "*.*")]
         )
+        if selected_files:
+            file_paths = list(selected_files)
     
-    if not file_path:
+    if not file_paths:
         logger.info("대상 파일이 없습니다.")
         return
 
-    # 변환 실행
-    result_path = hwp_to_pdf(file_path)
+    success_count = 0
+    fail_count = 0
     
-    if result_path:
-        # 인자로 실행된 경우(우클릭 등)는 메시지 박스 없이 조용히 종료하거나 성공 알림만 띄움
-        # 여기서는 사용자 경험을 위해 성공 알림을 띄웁니다.
-        messagebox.showinfo("성공", f"변환이 완료되었습니다!\n저장 위치: {result_path}")
+    # 여러 파일 순차 변환
+    for path in file_paths:
+        result_path = hwp_to_pdf(path)
+        if result_path:
+            success_count += 1
+        else:
+            fail_count += 1
+            
+    # 결과 요약 알림
+    summary_msg = f"변환 완료!\n- 성공: {success_count}건"
+    if fail_count > 0:
+        summary_msg += f"\n- 실패: {fail_count}건 (로그 확인 필요)"
+        messagebox.showwarning("결과 요약", summary_msg)
     else:
-        messagebox.showerror("실패", "변환 중 오류가 발생했습니다. 로그를 확인하세요.")
+        messagebox.showinfo("결과 요약", summary_msg)
 
 if __name__ == "__main__":
     # 로그 디렉토리 생성
